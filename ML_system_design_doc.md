@@ -185,27 +185,16 @@ f(X)→P(fraud=1∣X)
 
 *Архитектура baseline:*
 
-Исторические транзакции
-        ↓
-Очистка данных
-        ↓
-Базовая feature engineering:
-  - сумма
-  - время суток
-  - день недели
-  - канал
-  - регион
-  - тип операции
-        ↓
-Train / Validation split (time-based)
-        ↓
-Логистическая регрессия (class_weight=balanced)
-        ↓
-ROC-AUC / PR-AUC
-        ↓
-Подбор threshold (фиксируем Precision или Recall)
-        ↓
-Отчёт + baseline метрики
+```mermaid
+graph TD;
+    A["Исторические транзакции"] --> B["Очистка данных"];
+    B["Очистка данных"] --> C["Базовая feature engineering"];
+    C["Базовая feature engineering"] --> D["Train / Validation split<br>(time-based)"];
+    D["Train / Validation split<br>(time-based)"] --> E["Логистическая регрессия<br>(class_weight=balanced)"];
+    E["Логистическая регрессия<br>(class_weight=balanced)"] --> F["ROC-AUC / PR-AUC"];
+    F["ROC-AUC / PR-AUC"] --> G["Подбор threshold<br>(фиксируем Precision или Recall)"];
+    G["Подбор threshold<br>(фиксируем Precision или Recall)"] --> H["Отчёт + baseline метрики"];
+```
 
 *Ключевые особенности baseline:*
 - Без сложных поведенческих агрегатов.
