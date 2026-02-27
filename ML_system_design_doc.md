@@ -206,7 +206,7 @@ graph TD;
 *Архитектура MVP:*
 
 ---
-
+```mermaid
 graph TD;
     A["Исторические транзакции"] --> B["Data validation"];
     B["Data validation"] --> C["Feature engineering"];
@@ -219,7 +219,7 @@ graph TD;
     I["Выбор threshold по бизнес-стоимости"] --> J["SHAP-анализ"];
     J["SHAP-анализ"] --> K["Финальный отчёт + сравнение с baseline"];
     K["Финальный отчёт + сравнение с baseline"] --> L["Подготовка к пилоту"];
-    
+```
 ---
 
 ### 2.3 Этапы решения
