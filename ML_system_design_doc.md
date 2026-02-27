@@ -206,44 +206,20 @@ graph TD;
 *Архитектура MVP:*
 
 ---
-Исторические транзакции
-        ↓
-Data validation (проверка утечек, пропусков)
-        ↓
-Feature Engineering:
-  - Поведенческие агрегаты клиента
-    (кол-во операций за 1ч/24ч/7д)
-  - Средний чек
-  - Доля ночных операций
-  - Гео-смена
-  - Recency-признаки
-        ↓
-Обработка дисбаланса:
-  - class weights
-  - возможный undersampling
-        ↓
-Time-based split
-(backtesting по месяцам)
-        ↓
-Модели:
-  - Gradient Boosting
-  - Random Forest
-  - Logistic Regression
-        ↓
-AutoML / GridSearch
-(подбор гиперпараметров)
-        ↓
-Оптимизация по PR-AUC
-или cost-based metric
-        ↓
-Выбор threshold по бизнес-стоимости
-        ↓
-SHAP-анализ
-        ↓
-Финальный отчёт + сравнение с baseline
-        ↓
-Подготовка к пилоту
-(экспорт модели, описание API)
+
+graph TD;
+    A["Исторические транзакции"] --> B["Data validation"];
+    B["Data validation"] --> C["Feature engineering"];
+    C["Feature engineering"] --> D["Обработка дисбаланса"];
+    D["Обработка дисбаланса"] --> E["Time-based split"];
+    E["Time-based split"] --> F["Модели: GB / RF / LR"];
+    F["Модели: GB / RF / LR"] --> G["AutoML / GridSearch"];
+    G["AutoML / GridSearch"] --> H["Оптимизация по PR-AUC / cost-metric"];
+    H["Оптимизация по PR-AUC / cost-metric"] --> I["Выбор threshold по бизнес-стоимости"];
+    I["Выбор threshold по бизнес-стоимости"] --> J["SHAP-анализ"];
+    J["SHAP-анализ"] --> K["Финальный отчёт + сравнение с baseline"];
+    K["Финальный отчёт + сравнение с baseline"] --> L["Подготовка к пилоту"];
+    
 ---
 
 ### 2.3 Этапы решения
