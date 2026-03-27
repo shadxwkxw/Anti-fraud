@@ -36,7 +36,14 @@ data/*.parquet
 *.parquet
 artifacts/tmp_preprocessed/
 artifacts/baselines/
+models/
 
 # Frontend
 frontend/node_modules/
 frontend/dist/
+
+airflow
+airflow/airflow.db
+airflow/airflow.db-journal
+airflow/logs/
+airflow/simple_auth_manager_passwords.json.generated
