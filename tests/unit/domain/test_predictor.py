@@ -1,5 +1,6 @@
 import numpy as np
 
+from src.antifraud.domain.models import Transaction
 from src.antifraud.domain.predictor import preprocess_single_tx
 
 
@@ -15,14 +16,9 @@ def test_preprocess_single_tx_returns_correct_columns(mocker):
     mock_model.feature_names_in_ = np.array(["Time", "V1", "Amount", "hour", "is_night"])
     mock_scaler.transform.side_effect = lambda values: values
 
-    test_data = {
-        "Time": 3600.0,
-        "V1": 1.0,
-        "V2": 2.0,
-        "Amount": 100.0,
-    }
+    tx = Transaction(Time=3600.0, Amount=100.0, V1=1.0, V2=2.0)
 
-    result_df = preprocess_single_tx(test_data)
+    result_df = preprocess_single_tx(tx)
 
     # Check that only requested columns are present
     assert list(result_df.columns) == ["Time", "V1", "Amount", "hour", "is_night"]
@@ -42,7 +38,7 @@ def test_preprocess_single_tx_handles_scaling(mocker):
     # Scaler returns 0.5 for any input
     mock_scaler.transform.return_value = np.array([[0.5]])
 
-    test_data = {"Time": 0, "Amount": 100.0}
-    result_df = preprocess_single_tx(test_data)
+    tx = Transaction(Time=0, Amount=100.0)
+    result_df = preprocess_single_tx(tx)
 
     assert result_df["Amount"].iloc[0] == 0.5
