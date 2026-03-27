@@ -1,0 +1,77 @@
+project:
+  name: antifraud-ml
+  random_state: 42
+
+data:
+
+  raw_path: data/raw/creditcard_1M.csv
+
+  processed_path: data/processed/features.parquet
+
+  train_path: data/splits/train.parquet
+  test_path: data/splits/test.parquet
+
+features:
+
+  scale_amount: true
+
+  night_hours:
+    start: 1
+    end: 5
+
+  rolling_windows:
+    tx_1h: 20
+    tx_24h: 200
+    tx_7d: 1000
+
+model:
+
+  type: random_forest
+
+  threshold: 0.32
+
+  logistic_regression:
+    max_iter: 1000
+    class_weight: balanced
+
+  random_forest:
+    n_estimators: 200
+    max_depth: 12
+    class_weight: balanced
+    n_jobs: -1
+
+  gradient_boosting:
+    n_estimators: 200
+    learning_rate: 0.05
+    max_depth: 2
+
+metrics:
+
+  target_recall: 0.80
+  target_precision: 0.40
+
+  primary_metric: pr_auc
+
+storage:
+
+  model_dir: models/
+  artifact_dir: artifacts/
+
+s3:
+
+  bucket: antifraud-models
+  region: eu-central-1
+
+postgres:
+  host: ${POSTGRES_HOST}
+  port: ${POSTGRES_PORT}
+  database: ${POSTGRES_DB}
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
+  table: predictions
+
+api:
+
+  host: 0.0.0.0
+  port: 8000
+

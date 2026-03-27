@@ -1,0 +1,7 @@
+apache-airflow[cncf.kubernetes,postgres]==2.7.3
+apache-airflow-providers-docker
+psycopg2-binary
+pandas
+scikit-learn
+joblib
+pyyaml
