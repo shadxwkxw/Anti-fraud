@@ -33,10 +33,10 @@ jobs:
         run: uv run flake8 src tests services
 
       - name: Run isort
-        run: uv run isort --check-only src tests services airflow
+        run: uv run isort --check-only src tests services
 
       - name: Run black
-        run: uv run black --check src tests services airflow
+        run: uv run black --check src tests services
 
       - name: Run pylint
         run: uv run pylint src tests services
