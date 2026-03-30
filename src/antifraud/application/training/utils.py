@@ -11,6 +11,8 @@ def load_and_preprocess_data(file_path):
     else:
         df = pd.read_csv(file_path)
 
+    df = df.dropna(subset=["Class"])
+
     # Feature Engineering
     df["hour"] = (df["Time"] // 3600) % 24
     df["is_night"] = df["hour"].between(1, 5).astype(int)
@@ -24,10 +26,9 @@ def load_and_preprocess_data(file_path):
     df["recency"] = df["Time"].diff().fillna(0)
 
     # Rolling window (количество транзакций за последний час)
-    # В реальном времени это делается через Feature Store
-    df["tx_1h"] = 1  # заглушка
-    df["tx_24h"] = 1  # заглушка
-    df["tx_7d"] = 1  # заглушка
+    df["tx_1h"] = 1
+    df["tx_24h"] = 1
+    df["tx_7d"] = 1
 
     return df
 

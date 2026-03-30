@@ -11,6 +11,7 @@ from src.antifraud.application.training.utils import (
     get_splits,
     load_and_preprocess_data,
 )
+from src.antifraud.config import config
 
 
 def train_gb_model(input_path, output_path):
@@ -67,7 +68,7 @@ def train_gb_model(input_path, output_path):
 def main():
     """CLI entrypoint for Gradient Boosting training."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="data/raw/creditcard.csv")
+    parser.add_argument("--input", default=config["data"]["raw_path"])
     parser.add_argument("--output", default="models/gradient_boosting/model.joblib")
     args = parser.parse_args()
 

@@ -2,13 +2,11 @@ import argparse
 import os
 import shutil
 
+from src.antifraud.config import config
+
 
 def extract_data(date, output_path):
-    """
-    В MVP просто копирует существующий файл, имитируя выгрузку за дату.
-    В реальности здесь был бы SQL запрос к БД транзакций.
-    """
-    source_path = "data/raw/creditcard.csv"
+    source_path = config["data"]["raw_path"]
 
     if not os.path.exists(source_path):
         print(f"Error: Source file {source_path} not found")
@@ -22,7 +20,6 @@ def extract_data(date, output_path):
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
 
-    # В реальности мы бы фильтровали данные по дате
     shutil.copy(source_path, output_path)
     print(f"Data for {date} extracted to {output_path}")
 

@@ -4,6 +4,7 @@ import os
 from sklearn.model_selection import train_test_split
 
 from src.antifraud.application.training.utils import load_and_preprocess_data
+from src.antifraud.config import config
 
 
 def make_splits(input_path, train_output, test_output):
@@ -36,7 +37,7 @@ def make_splits(input_path, train_output, test_output):
 def main():
     """CLI entrypoint for train/test split generation."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="data/raw/creditcard.csv")
+    parser.add_argument("--input", default=config["data"]["raw_path"])
     parser.add_argument("--output", help="Path to train output", required=False)
     parser.add_argument("--test-output", default="data/splits/test.parquet")
     args = parser.parse_args()
