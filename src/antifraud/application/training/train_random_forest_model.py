@@ -10,6 +10,7 @@ from src.antifraud.application.training.utils import (
     find_optimal_threshold,
     load_and_preprocess_data,
 )
+from src.antifraud.config import config
 from src.antifraud.infrastructure.storage.s3 import upload_model
 
 
@@ -85,7 +86,7 @@ def train_model(input_path, output_path):
 def main():
     """CLI entrypoint for Random Forest training."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="data/raw/creditcard.csv")
+    parser.add_argument("--input", default=config["data"]["raw_path"])
     parser.add_argument("--output", default="models/random_forest/model.joblib")
     args = parser.parse_args()
 

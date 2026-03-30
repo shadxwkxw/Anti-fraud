@@ -23,10 +23,9 @@ venv/
 .env.*
 !.env.example
 
-# Generated artifacts
-core/generated/*.json
-
 # Datasets and ML artifacts
+data
+data/output
 data/raw/
 data/processed/
 data/splits/

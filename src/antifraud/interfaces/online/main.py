@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.antifraud.interfaces.online.routes import router
 
@@ -9,6 +8,3 @@ app = FastAPI(
 )
 
 app.include_router(router)
-
-# Prometheus metrics
-Instrumentator().instrument(app).expose(app)

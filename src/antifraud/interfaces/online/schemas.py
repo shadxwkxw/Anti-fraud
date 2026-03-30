@@ -42,6 +42,14 @@ class TransactionRequest(BaseModel):
         return Transaction(**self.model_dump())
 
 
+class ModelInfoResponse(BaseModel):
+    """Pydantic-схема ответа о метаинформации модели."""
+
+    model_type: str
+    threshold: float
+    model_path: str
+
+
 class PredictionResponse(BaseModel):
     """Pydantic-схема ответа API."""
 
