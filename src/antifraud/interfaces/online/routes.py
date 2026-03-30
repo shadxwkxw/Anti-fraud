@@ -2,7 +2,11 @@ from fastapi import APIRouter
 
 from src.antifraud.config import config
 from src.antifraud.domain.predictor import MODEL_PATH, predict
-from src.antifraud.interfaces.online.schemas import ModelInfoResponse, PredictionResponse, TransactionRequest
+from src.antifraud.interfaces.online.schemas import (
+    ModelInfoResponse,
+    PredictionResponse,
+    TransactionRequest,
+)
 
 router = APIRouter()
 
@@ -34,6 +38,5 @@ def model_info():
 def fraud_predict(tx: TransactionRequest):
     transaction = tx.to_domain()
     prediction = predict(transaction)
-
 
     return PredictionResponse.from_domain(prediction)
