@@ -74,7 +74,8 @@ def save_batch_predictions(df, chunk_size=5000):
     saved = 0
 
     for start in range(0, total, chunk_size):
-        chunk = df.iloc[start:start + chunk_size]
+        end = start + chunk_size
+        chunk = df.iloc[start:end]
         data_to_insert = []
         for _, row in chunk.iterrows():
             row_data = row.drop(["fraud_probability", "is_fraud"]).to_dict()
