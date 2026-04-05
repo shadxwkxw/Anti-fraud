@@ -6,8 +6,6 @@ from src.antifraud.application.batch_predict import run_batch
 
 def test_run_batch_execution(mocker, tmp_path):
     # Mocking external dependencies
-    mocker.patch("src.antifraud.application.batch_predict.init_db")
-    mocker.patch("src.antifraud.application.batch_predict.save_batch_predictions")
     mocker.patch("src.antifraud.application.batch_predict.load_and_preprocess_data")
     mocker.patch("os.path.exists", return_value=True)
 
