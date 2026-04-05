@@ -2,19 +2,14 @@ import os
 import re
 
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ENV_VAR_PATTERN = re.compile(r"^\$\{([^}]+)\}$")
-ENV_DEFAULTS = {
-    "POSTGRES_HOST": "postgres",
-    "POSTGRES_PORT": 5432,
-    "POSTGRES_DB": "fraud",
-    "POSTGRES_USER": "fraud",
-    "POSTGRES_PASSWORD": "fraud",
-}
 
 
 def resolve_env_placeholders(value):
-    """Recursively resolves ${ENV_VAR} placeholders with environment defaults."""
     if isinstance(value, dict):
         resolved = {key: resolve_env_placeholders(item) for key, item in value.items()}
     elif isinstance(value, list):
@@ -26,15 +21,21 @@ def resolve_env_placeholders(value):
         if not match:
             resolved = value
         else:
-            env_name = match.group(1)
-            default = ENV_DEFAULTS.get(env_name, value)
+            expr = match.group(1)
+            if ":-" in expr:
+                env_name, default = expr.split(":-", 1)
+            else:
+                env_name, default = expr, None
             raw_value = os.getenv(env_name)
             if raw_value is None:
-                resolved = default
-            elif isinstance(default, int):
-                resolved = int(raw_value)
-            else:
-                resolved = raw_value
+                if default is not None:
+                    raw_value = default
+                else:
+                    raise KeyError(
+                        f"Required environment variable '{env_name}' is not set. "
+                        f"Define it in .env or export it before running."
+                    )
+            resolved = raw_value
 
     return resolved
 

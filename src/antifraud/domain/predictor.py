@@ -23,7 +23,7 @@ def get_artifacts():
 def preprocess_single_tx(transaction: Transaction):
     """Применяет те же преобразования, что и при обучении, к одной транзакции."""
     model, scaler = get_artifacts()
-    df = pd.DataFrame([transaction.to_dict()])
+    df = pd.DataFrame([transaction.model_dump()])
 
     # Feature Engineering (соответствует utils.py)
     df["recency"] = 0.0
@@ -52,4 +52,4 @@ def predict(transaction: Transaction) -> Prediction:
     df = preprocess_single_tx(transaction)
     prob = model.predict_proba(df)[0][1]
     threshold = config["model"]["threshold"]
-    return Prediction.from_probability(float(prob), threshold)
+    return Prediction(fraud_probability=float(prob), threshold=threshold)

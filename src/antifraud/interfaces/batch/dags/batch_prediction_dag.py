@@ -37,6 +37,7 @@ with DAG(
         Mount(source=f"{PROJECT_ROOT}/models", target="/app/models", type="bind"),
         Mount(source=f"{PROJECT_ROOT}/configs", target="/app/configs", type="bind"),
         Mount(source=f"{PROJECT_ROOT}/src", target="/app/src", type="bind"),
+        Mount(source=f"{PROJECT_ROOT}/.env", target="/app/.env", type="bind", read_only=True),
     ]
 
     # 0. Create database if not exists

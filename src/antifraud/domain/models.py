@@ -1,13 +1,13 @@
-from dataclasses import dataclass, field
 from datetime import datetime
 
+from pydantic import BaseModel, Field, model_validator
 
-@dataclass
-class Transaction:
-    """Транзакция по кредитной карте — основная доменная сущность."""
+
+class Transaction(BaseModel):
+    """Транзакция по кредитной карте."""
 
     Time: float
-    Amount: float
+    Amount: float = Field(ge=0)
     V1: float = 0.0
     V2: float = 0.0
     V3: float = 0.0
@@ -37,52 +37,40 @@ class Transaction:
     V27: float = 0.0
     V28: float = 0.0
 
-    def to_dict(self) -> dict:
-        """Преобразует транзакцию в словарь для дальнейшей обработки."""
-        return {
-            "Time": self.Time,
-            "Amount": self.Amount,
-            **{f"V{i}": getattr(self, f"V{i}") for i in range(1, 29)},
-        }
 
-
-@dataclass
-class TransactionFeatures:
+class TransactionFeatures(BaseModel):
     """Обогащённая транзакция с вычисленными признаками."""
 
-    hour: float = 0.0
-    is_night: int = 0
+    hour: float = Field(default=0.0, ge=0, le=23)
+    is_night: int = Field(default=0, ge=0, le=1)
     recency: float = 0.0
     mean_amount: float = 0.0
     amount_ratio: float = 1.0
-    tx_1h: float = 1.0
-    tx_24h: float = 1.0
-    tx_7d: float = 1.0
+    tx_1h: float = Field(default=1.0, ge=0)
+    tx_24h: float = Field(default=1.0, ge=0)
+    tx_7d: float = Field(default=1.0, ge=0)
 
 
-@dataclass
-class Prediction:
+class Prediction(BaseModel):
     """Результат предсказания мошенничества."""
 
-    fraud_probability: float
-    is_fraud: bool
-    threshold: float = 0.3
+    fraud_probability: float = Field(ge=0.0, le=1.0)
+    is_fraud: bool = False
+    threshold: float = Field(default=0.3, ge=0.0, le=1.0)
 
+    @model_validator(mode="before")
     @classmethod
-    def from_probability(cls, probability: float, threshold: float = 0.3) -> "Prediction":
-        return cls(
-            fraud_probability=probability,
-            is_fraud=probability > threshold,
-            threshold=threshold,
-        )
+    def compute_is_fraud(cls, values: dict) -> dict:
+        if "fraud_probability" in values and "is_fraud" not in values:
+            values["is_fraud"] = values["fraud_probability"] > values.get("threshold", 0.3)
+        return values
 
 
-@dataclass
-class StoredPrediction:
+class StoredPrediction(BaseModel):
     """Сохранённое предсказание с метаданными."""
 
     id: int | None = None
     timestamp: datetime | None = None
-    transaction_data: dict = field(default_factory=dict)
-    fraud_probability: float = 0.0
+    transaction_data: dict = Field(default_factory=dict)
+    fraud_probability: float = Field(ge=0.0, le=1.0, default=0.0)
     is_fraud: bool = False
