@@ -1,15 +1,13 @@
-import os
-
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from src.antifraud.config import config
 
-DB_HOST = os.getenv("POSTGRES_HOST", config["postgres"]["host"])
-DB_PORT = os.getenv("POSTGRES_PORT", config["postgres"]["port"])
-DB_USER = os.getenv("POSTGRES_USER", config["postgres"]["user"])
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", config["postgres"]["password"])
-DB_NAME = os.getenv("POSTGRES_DB", config["postgres"]["database"])
+DB_HOST = config["postgres"]["host"]
+DB_PORT = config["postgres"]["port"]
+DB_USER = config["postgres"]["user"]
+DB_PASSWORD = config["postgres"]["password"]
+DB_NAME = config["postgres"]["database"]
 
 
 def create_database_if_not_exists():
@@ -21,6 +19,7 @@ def create_database_if_not_exists():
             user=DB_USER,
             password=DB_PASSWORD,
             database="postgres",
+            sslmode=config["postgres"].get("sslmode", "require"),
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()

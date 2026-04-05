@@ -1,5 +1,4 @@
 import json
-import os
 
 import pandas as pd
 import psycopg2
@@ -10,13 +9,14 @@ from src.antifraud.domain.models import StoredPrediction
 
 
 def get_connection():
-    """Создает соединение с Postgres, используя параметры из конфига или переменных окружения."""
+    """Создает соединение с Postgres, используя параметры из конфига."""
     return psycopg2.connect(
-        host=os.getenv("POSTGRES_HOST", config["postgres"]["host"]),
-        port=os.getenv("POSTGRES_PORT", config["postgres"]["port"]),
-        database=os.getenv("POSTGRES_DB", config["postgres"]["database"]),
-        user=os.getenv("POSTGRES_USER", config["postgres"]["user"]),
-        password=os.getenv("POSTGRES_PASSWORD", config["postgres"]["password"]),
+        host=config["postgres"]["host"],
+        port=config["postgres"]["port"],
+        database=config["postgres"]["database"],
+        user=config["postgres"]["user"],
+        password=config["postgres"]["password"],
+        sslmode=config["postgres"].get("sslmode", "require"),
     )
 
 
