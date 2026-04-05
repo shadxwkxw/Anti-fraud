@@ -41,7 +41,8 @@ models/
 frontend/node_modules/
 frontend/dist/
 
-airflow
+airflow/*
+!airflow/Dockerfile
 airflow/airflow.db
 airflow/airflow.db-journal
 airflow/logs/
