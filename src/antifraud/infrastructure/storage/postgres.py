@@ -64,36 +64,40 @@ def save_prediction(prediction: StoredPrediction):
     conn.close()
 
 
-def save_batch_predictions(df):
-    """Сохраняет пакет предсказаний в Postgres."""
+def save_batch_predictions(df, chunk_size=5000):
+    """Сохраняет пакет предсказаний в Postgres чанками."""
     conn = get_connection()
     cur = conn.cursor()
 
     table_name = config["postgres"]["table"]
+    total = len(df)
+    saved = 0
 
-    # Подготавливаем данные для пакетной вставки
-    data_to_insert = []
-    for _, row in df.iterrows():
-        # Сохраняем все колонки кроме итоговых в JSONB
-        row_data = row.drop(["fraud_probability", "is_fraud"]).to_dict()
-        data_to_insert.append(
-            (
-                json.dumps(row_data),
-                float(row["fraud_probability"]),
-                bool(row["is_fraud"]),
+    for start in range(0, total, chunk_size):
+        chunk = df.iloc[start:start + chunk_size]
+        data_to_insert = []
+        for _, row in chunk.iterrows():
+            row_data = row.drop(["fraud_probability", "is_fraud"]).to_dict()
+            data_to_insert.append(
+                (
+                    json.dumps(row_data),
+                    float(row["fraud_probability"]),
+                    bool(row["is_fraud"]),
+                )
             )
+
+        execute_values(
+            cur,
+            f"INSERT INTO {table_name} (data, probability, is_fraud) VALUES %s",
+            data_to_insert,
         )
+        conn.commit()
+        saved += len(chunk)
+        print(f"Saved {saved}/{total} predictions...")
 
-    execute_values(
-        cur,
-        f"INSERT INTO {table_name} (data, probability, is_fraud) VALUES %s",
-        data_to_insert,
-    )
-
-    conn.commit()
     cur.close()
     conn.close()
-    print(f"Saved {len(df)} predictions to Postgres table {table_name}")
+    print(f"Done: saved {total} predictions to {table_name}")
 
 
 def fetch_data_by_date(date):

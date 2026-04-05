@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 
-from src.antifraud.infrastructure.storage.postgres import save_batch_predictions
+from src.antifraud.infrastructure.storage.postgres import init_db, save_batch_predictions
 
 
 def publish_results(input_path):
@@ -13,9 +13,10 @@ def publish_results(input_path):
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"File {input_path} not found")
 
+    init_db()
+
     df = pd.read_csv(input_path)
 
-    # Сохраняем в БД
     save_batch_predictions(df)
     print(f"Successfully published {len(df)} predictions to Postgres")
 

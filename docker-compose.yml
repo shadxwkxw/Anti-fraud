@@ -46,6 +46,9 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_PORT: ${AIRFLOW_WEBSERVER_PORT}
       AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT: '300'
       AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT: '300'
+      AIRFLOW__SCHEDULER__SCHEDULER_HEARTBEAT_SEC: '5'
+      AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: '10'
+      AIRFLOW__WEBSERVER__WORKER_REFRESH_INTERVAL: '30'
     volumes:
       - ./src/antifraud/interfaces/batch/dags:/opt/airflow/dags
       - /var/run/docker.sock:/var/run/docker.sock

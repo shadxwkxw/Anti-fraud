@@ -22,6 +22,7 @@ with DAG(
     description="Fraud batch scoring pipeline",
     schedule="@daily",
     catchup=False,
+    max_active_runs=1,
     tags=["fraud", "batch", "ml"],
 ) as dag:
 
@@ -39,18 +40,6 @@ with DAG(
         Mount(source=f"{PROJECT_ROOT}/src", target="/app/src", type="bind"),
         Mount(source=f"{PROJECT_ROOT}/.env", target="/app/.env", type="bind", read_only=True),
     ]
-
-    # 0. Create database if not exists
-    create_database = DockerOperator(
-        task_id="create_fraud_database",
-        image="antifraud-batch:latest",
-        command="python src/antifraud/infrastructure/storage/create_database.py",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="antifraud-network",
-        auto_remove="success",
-        mount_tmp_dir=False,
-        mounts=shared_mounts,
-    )
 
     # 1. Extract / Prepare data
     extract = DockerOperator(
@@ -118,7 +107,6 @@ with DAG(
     )
 
     # Dependencies
-    create_database.set_downstream(extract)
     extract.set_downstream(validate)
     validate.set_downstream(features)
     features.set_downstream(predict)
