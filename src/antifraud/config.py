@@ -21,13 +21,20 @@ def resolve_env_placeholders(value):
         if not match:
             resolved = value
         else:
-            env_name = match.group(1)
+            expr = match.group(1)
+            if ":-" in expr:
+                env_name, default = expr.split(":-", 1)
+            else:
+                env_name, default = expr, None
             raw_value = os.getenv(env_name)
             if raw_value is None:
-                raise KeyError(
-                    f"Required environment variable '{env_name}' is not set. "
-                    f"Define it in .env or export it before running."
-                )
+                if default is not None:
+                    raw_value = default
+                else:
+                    raise KeyError(
+                        f"Required environment variable '{env_name}' is not set. "
+                        f"Define it in .env or export it before running."
+                    )
             resolved = raw_value
 
     return resolved
