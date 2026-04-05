@@ -21,7 +21,6 @@ RUN uv sync --frozen --no-dev
 COPY src/ src/
 COPY services/batch/ services/batch/
 COPY configs/ configs/
-COPY models/ models/
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app"

@@ -3,6 +3,23 @@ import os
 
 from src.antifraud.application.batch_predict import run_batch
 from src.antifraud.config import config
+from src.antifraud.infrastructure.storage.s3 import download_model
+
+
+def ensure_models():
+    """Загружает модель и скейлер из S3, если они отсутствуют локально."""
+    model_dir = config["storage"]["model_dir"]
+    model_type = config["model"]["type"]
+
+    local_dir = os.path.join(model_dir, model_type)
+    os.makedirs(local_dir, exist_ok=True)
+
+    for filename in ("model.joblib", "scaler.joblib"):
+        local_path = os.path.join(local_dir, filename)
+        if not os.path.exists(local_path):
+            s3_key = f"{model_type}/{filename}"
+            print(f"Downloading {s3_key} from S3...")
+            download_model(s3_key, local_path)
 
 
 def main():
@@ -16,6 +33,7 @@ def main():
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
 
+    ensure_models()
     run_batch(args.input, args.output)
     print("Batch inference finished via service entrypoint")
 

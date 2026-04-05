@@ -73,8 +73,7 @@ antifraud/
 │   │       ├── postgres.py           # Подключение к PostgreSQL, запись предсказаний
 │   │       ├── create_database.py    # Инициализация таблицы predictions
 │   │       ├── save_predictions.py   # CLI для сохранения результатов в БД
-│   │       ├── s3.py                 # Загрузка моделей в S3
-│   │       └── 01-create-airflow-db.sh # Init-скрипт: создание БД Airflow в PostgreSQL
+│   │       └── s3.py                 # Загрузка моделей в S3
 │   │
 │   └── interfaces/                   # Точки входа
 │       ├── online/                   # REST API (FastAPI)
