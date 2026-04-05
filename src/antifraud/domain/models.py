@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -54,7 +55,7 @@ class Prediction(BaseModel):
     """Результат предсказания мошенничества."""
 
     fraud_probability: float = Field(ge=0.0, le=1.0)
-    is_fraud: bool
+    is_fraud: bool = False
     threshold: float = Field(default=0.3, ge=0.0, le=1.0)
 
     @model_validator(mode="before")

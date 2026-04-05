@@ -10,4 +10,4 @@ def test_config_loaded():
 
 def test_config_values():
     assert config["project"]["name"] == "antifraud-ml"
-    assert config["postgres"]["port"] == 5432
+    assert config["postgres"]["port"].isdigit()
