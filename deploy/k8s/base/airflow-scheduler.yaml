@@ -21,6 +21,7 @@ spec:
       containers:
         - name: scheduler
           image: antifraud-airflow:placeholder
+          command: ["airflow"]
           args: ["scheduler"]
           envFrom:
             - configMapRef:
@@ -47,11 +48,11 @@ spec:
             timeoutSeconds: 10
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
-              cpu: "1"
-              memory: 1Gi
+              cpu: 500m
+              memory: 768Mi
       volumes:
         - name: dags
           configMap:

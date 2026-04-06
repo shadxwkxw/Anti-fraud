@@ -49,6 +49,7 @@ spec:
         # Run database migrations
         - name: db-init
           image: antifraud-airflow:placeholder
+          command: ["airflow"]
           args: ["db", "migrate"]
           envFrom:
             - configMapRef:
@@ -77,6 +78,7 @@ spec:
       containers:
         - name: webserver
           image: antifraud-airflow:placeholder
+          command: ["airflow"]
           args: ["webserver"]
           ports:
             - name: http
@@ -109,11 +111,11 @@ spec:
             periodSeconds: 30
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
-              cpu: "1"
-              memory: 1Gi
+              cpu: 500m
+              memory: 768Mi
       volumes:
         - name: dags
           configMap:
