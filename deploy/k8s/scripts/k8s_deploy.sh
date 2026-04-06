@@ -12,6 +12,9 @@ ONLINE_TAG="${1:?Usage: k8s_deploy.sh <online_tag> <batch_tag> <airflow_tag>}"
 BATCH_TAG="${2:?Missing batch_tag}"
 AIRFLOW_TAG="${3:?Missing airflow_tag}"
 
+# Use kubeconfig from user's home (set up once after k3s install)
+export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
+
 NAMESPACE="antifraud-system"
 REGISTRY="ghcr.io/shadxwkxw"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
