@@ -31,4 +31,4 @@ ENV PYTHONPATH="/app"
 
 EXPOSE 8080
 
-CMD ["airflow", "webserver"]
+CMD ["airflow", "api-server"]

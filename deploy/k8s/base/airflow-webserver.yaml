@@ -79,7 +79,7 @@ spec:
         - name: webserver
           image: antifraud-airflow:placeholder
           command: ["airflow"]
-          args: ["webserver"]
+          args: ["api-server"]
           ports:
             - name: http
               containerPort: 8080
