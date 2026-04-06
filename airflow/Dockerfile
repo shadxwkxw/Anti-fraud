@@ -18,7 +18,7 @@ COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen --no-dev
 
-RUN uv pip install apache-airflow-providers-cncf-kubernetes
+RUN uv pip install apache-airflow-providers-cncf-kubernetes asyncpg
 
 COPY src/ src/
 COPY configs/ configs/
