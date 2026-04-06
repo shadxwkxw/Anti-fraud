@@ -18,7 +18,7 @@ COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen --no-dev
 
-RUN uv pip install apache-airflow-providers-cncf-kubernetes asyncpg
+# providers уже в pyproject.toml; asyncpg в Airflow 2.x не нужен
 
 COPY src/ src/
 COPY configs/ configs/
@@ -31,4 +31,4 @@ ENV PYTHONPATH="/app"
 
 EXPOSE 8080
 
-CMD ["airflow", "api-server"]
+CMD ["airflow", "webserver"]

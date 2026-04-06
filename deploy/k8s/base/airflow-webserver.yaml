@@ -79,7 +79,7 @@ spec:
         - name: webserver
           image: antifraud-airflow:placeholder
           command: ["airflow"]
-          args: ["api-server"]
+          args: ["webserver"]
           ports:
             - name: http
               containerPort: 8080
@@ -99,13 +99,13 @@ spec:
               mountPath: /opt/airflow/logs
           readinessProbe:
             httpGet:
-              path: /api/v2/monitor/health
+              path: /health
               port: http
             initialDelaySeconds: 15
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /api/v2/monitor/health
+              path: /health
               port: http
             initialDelaySeconds: 30
             periodSeconds: 30
