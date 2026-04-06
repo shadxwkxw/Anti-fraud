@@ -1,0 +1,38 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment:
+        description: "Deployment to rollback"
+        required: true
+        type: choice
+        options:
+          - antifraud-online
+          - airflow-webserver
+          - airflow-scheduler
+          - minio
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rollback deployment
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || '22' }}
+          script: |
+            set -eu
+            NAMESPACE="antifraud-system"
+            DEPLOYMENT="${{ github.event.inputs.deployment }}"
+            echo "Rolling back ${DEPLOYMENT}..."
+            kubectl rollout undo deployment/${DEPLOYMENT} -n ${NAMESPACE}
+            kubectl rollout status deployment/${DEPLOYMENT} -n ${NAMESPACE} --timeout=120s
+            echo "Current image:"
+            kubectl get deployment/${DEPLOYMENT} -n ${NAMESPACE} \
+              -o jsonpath='{.spec.template.spec.containers[0].image}'
+            echo ""
+            echo "Rollback complete"

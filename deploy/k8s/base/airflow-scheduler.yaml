@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler
+  namespace: antifraud-system
+  labels:
+    app: airflow-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-scheduler
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler
+    spec:
+      serviceAccountName: airflow
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      containers:
+        - name: scheduler
+          image: antifraud-airflow:placeholder
+          args: ["scheduler"]
+          envFrom:
+            - configMapRef:
+                name: airflow-config
+            - configMapRef:
+                name: antifraud-config
+            - secretRef:
+                name: antifraud-secrets
+            - secretRef:
+                name: airflow-secrets
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+            - name: logs
+              mountPath: /opt/airflow/logs
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - airflow jobs check --job-type SchedulerJob --hostname $(hostname)
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: dags
+          configMap:
+            name: airflow-dags
+        - name: logs
+          persistentVolumeClaim:
+            claimName: airflow-logs-pvc

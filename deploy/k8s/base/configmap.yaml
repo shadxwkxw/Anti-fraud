@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: antifraud-config
+  namespace: antifraud-system
+data:
+  CONFIG_PATH: /app/configs/config.yaml
+  AWS_S3_ENDPOINT_URL: http://minio:9000
+  AWS_REGION: eu-central-1
+  ENVIRONMENT: production

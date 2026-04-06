@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-db
+  namespace: antifraud-system
+  labels:
+    app: airflow-db
+spec:
+  clusterIP: None
+  selector:
+    app: airflow-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: airflow-db
+  namespace: antifraud-system
+  labels:
+    app: airflow-db
+spec:
+  serviceName: airflow-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-db
+  template:
+    metadata:
+      labels:
+        app: airflow-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: airflow
+            - name: POSTGRES_PASSWORD
+              value: airflow
+            - name: POSTGRES_DB
+              value: airflow
+          volumeMounts:
+            - name: airflow-db-data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "airflow"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "airflow"]
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: airflow-db-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi

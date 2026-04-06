@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: antifraud-online
+  namespace: antifraud-system
+  labels:
+    app: antifraud-online
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: antifraud-online
+  template:
+    metadata:
+      labels:
+        app: antifraud-online
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      initContainers:
+        # Download models from MinIO/S3 before the main container starts
+        - name: download-models
+          image: antifraud-batch:placeholder
+          command:
+            - python
+            - -c
+            - |
+              from src.antifraud.infrastructure.storage.s3 import download_model
+              download_model("random_forest/model.joblib", "/app/models/random_forest/model.joblib")
+              download_model("random_forest/scaler.joblib", "/app/models/random_forest/scaler.joblib")
+              print("Models downloaded successfully")
+          envFrom:
+            - configMapRef:
+                name: antifraud-config
+            - secretRef:
+                name: antifraud-secrets
+          volumeMounts:
+            - name: models
+              mountPath: /app/models
+      containers:
+        - name: online
+          image: antifraud-online:placeholder
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: antifraud-config
+            - secretRef:
+                name: antifraud-secrets
+          volumeMounts:
+            - name: models
+              mountPath: /app/models
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: models
+          emptyDir: {}

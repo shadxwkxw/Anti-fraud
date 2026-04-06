@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: antifraud-online
+  namespace: antifraud-system
+spec:
+  rules:
+    - host: antifraud.your-domain.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: antifraud-online
+                port:
+                  number: 80

@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: antifraud-batch
+  namespace: antifraud-system
+  labels:
+    app: antifraud-batch
+spec:
+  schedule: "0 0 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 25200  # 7 hours
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: antifraud-batch
+        spec:
+          imagePullSecrets:
+            - name: ghcr-pull-secret
+          restartPolicy: Never
+          containers:
+            - name: batch
+              image: antifraud-batch:placeholder
+              command: ["python", "services/batch/main.py"]
+              envFrom:
+                - configMapRef:
+                    name: antifraud-config
+                - secretRef:
+                    name: antifraud-secrets
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 1Gi
+                limits:
+                  cpu: "2"
+                  memory: 4Gi
