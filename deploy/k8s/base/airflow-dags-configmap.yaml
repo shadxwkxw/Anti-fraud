@@ -51,7 +51,7 @@ data:
 
         EXECUTION_DATE = "{{ ds }}"
         TRAIN_DATA_PATH = f"data/processed/train_{EXECUTION_DATE}.parquet"
-        MODEL_PATH = f"data/models/random_forest/model_{EXECUTION_DATE}.joblib"
+        MODEL_PATH = "data/models/random_forest/model.joblib"
 
         prepare_data = KubernetesPodOperator(
             task_id="prepare_training_data",

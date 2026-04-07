@@ -54,8 +54,8 @@ metrics:
 
 storage:
 
-  model_dir: models/
-  artifact_dir: artifacts/
+  model_dir: data/models/
+  artifact_dir: data/artifacts/
 
 s3:
 
