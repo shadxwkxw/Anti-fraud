@@ -34,7 +34,11 @@ spec:
                 name: airflow-secrets
           volumeMounts:
             - name: dags
-              mountPath: /opt/airflow/dags
+              mountPath: /opt/airflow/dags/batch_prediction_dag.py
+              subPath: batch_prediction_dag.py
+            - name: dags
+              mountPath: /opt/airflow/dags/fraud_training_dag.py
+              subPath: fraud_training_dag.py
             - name: logs
               mountPath: /opt/airflow/logs
           livenessProbe:
