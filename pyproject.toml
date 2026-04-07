@@ -32,8 +32,21 @@ dev = [
     "mypy>=1.18.2",
     "pylint>=4.0.5",
     "pytest>=9.0.2",
+    "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
     "types-pyyaml>=6.0.12.20250915",
+]
+
+[tool.coverage.run]
+omit = [
+    "src/antifraud/interfaces/batch/dags/*",
+    "src/antifraud/interfaces/online/main.py",
+    "src/antifraud/application/training/train_baseline.py",
+    "src/antifraud/application/training/train_gradient_boosting_model.py",
+    "src/antifraud/application/training/train_random_forest_model.py",
+    "src/antifraud/infrastructure/storage/create_database.py",
+    "src/antifraud/infrastructure/data_processing/build_features.py",
+    "src/antifraud/infrastructure/data_processing/make_splits.py",
 ]
 
 [tool.pytest.ini_options]

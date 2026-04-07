@@ -47,3 +47,8 @@ airflow/airflow.db
 airflow/airflow.db-journal
 airflow/logs/
 airflow/simple_auth_manager_passwords.json.generated
+
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml

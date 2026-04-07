@@ -45,3 +45,6 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	rm -rf .pytest_cache
 	rm -rf .mypy_cache
+
+cov:
+	uv run pytest --cov=src/antifraud --cov-report=term-missing
