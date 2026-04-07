@@ -68,7 +68,7 @@ postgres:
   database: ${POSTGRES_DB:-antifraud}
   user: ${POSTGRES_USER:-postgres}
   password: ${POSTGRES_PASSWORD:-}
-  sslmode: require
+  sslmode: ${POSTGRES_SSLMODE:-disable}
   table: predictions
 
 api:
