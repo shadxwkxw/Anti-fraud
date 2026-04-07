@@ -6,6 +6,7 @@ resources:
   - namespace.yaml
   - configmap.yaml
   # secret.yaml and airflow-secrets.yaml are managed by k8s_deploy.sh
+  - antifraud-data-pvc.yaml
   - minio-pvc.yaml
   - minio-deployment.yaml
   - minio-service.yaml
