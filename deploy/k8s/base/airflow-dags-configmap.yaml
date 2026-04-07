@@ -9,9 +9,11 @@ data:
 
     from airflow import DAG
     from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+    from kubernetes.client import models as k8s
 
     NAMESPACE = "antifraud-system"
-    BATCH_IMAGE = "antifraud-batch:latest"
+    BATCH_IMAGE = "ghcr.io/shadxwkxw/antifraud-batch:latest"
+    IMAGE_PULL_SECRETS = [k8s.V1LocalObjectReference("ghcr-pull-secret")]
 
     DEFAULT_ARGS = {
         "owner": "airflow",
@@ -49,6 +51,7 @@ data:
                 "--output", TRAIN_DATA_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -65,6 +68,7 @@ data:
                 "--output", MODEL_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -80,6 +84,7 @@ data:
                 "--model", MODEL_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -95,6 +100,7 @@ data:
                 "--model", MODEL_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -107,9 +113,11 @@ data:
 
     from airflow import DAG
     from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+    from kubernetes.client import models as k8s
 
     NAMESPACE = "antifraud-system"
-    BATCH_IMAGE = "antifraud-batch:latest"
+    BATCH_IMAGE = "ghcr.io/shadxwkxw/antifraud-batch:latest"
+    IMAGE_PULL_SECRETS = [k8s.V1LocalObjectReference("ghcr-pull-secret")]
 
     DEFAULT_ARGS = {
         "owner": "airflow",
@@ -150,6 +158,7 @@ data:
                 "--output", INPUT_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -165,6 +174,7 @@ data:
                 "--input", INPUT_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -181,6 +191,7 @@ data:
                 "--output", FEATURES_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -197,6 +208,7 @@ data:
                 "--output", PREDICTIONS_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -212,6 +224,7 @@ data:
                 "--input", PREDICTIONS_PATH,
             ],
             env_from=ENV_FROM,
+            image_pull_secrets=IMAGE_PULL_SECRETS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
