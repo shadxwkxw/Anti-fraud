@@ -31,7 +31,10 @@ typecheck:
 test:
 	uv run pytest -q
 
-check: lint-check typecheck test
+test-cov:
+	uv run pytest -q --cov=src/antifraud --cov-report=term-missing --cov-fail-under=80
+
+check: lint-check typecheck test-cov
 
 up: build
 	docker-compose up -d

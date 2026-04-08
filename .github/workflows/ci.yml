@@ -44,5 +44,17 @@ jobs:
       - name: Run mypy
         run: uv run mypy src
 
-      - name: Run unit tests
-        run: uv run pytest -q
+      - name: Run unit tests with coverage
+        run: >
+          uv run pytest -q
+          --cov=src/antifraud
+          --cov-report=term-missing
+          --cov-report=xml
+          --cov-fail-under=80
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
