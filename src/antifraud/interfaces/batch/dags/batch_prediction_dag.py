@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 
+from kubernetes.client import models as k8s
+
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
-from kubernetes.client import models as k8s
 
 NAMESPACE = "antifraud-system"
 BATCH_IMAGE = "ghcr.io/shadxwkxw/antifraud-batch:latest"
@@ -43,8 +44,10 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/infrastructure/data_processing/extract.py",
-            "--date", EXECUTION_DATE,
-            "--output", INPUT_PATH,
+            "--date",
+            EXECUTION_DATE,
+            "--output",
+            INPUT_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -60,7 +63,8 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/infrastructure/data_processing/validate.py",
-            "--input", INPUT_PATH,
+            "--input",
+            INPUT_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -76,8 +80,10 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/infrastructure/data_processing/build_features.py",
-            "--input", INPUT_PATH,
-            "--output", FEATURES_PATH,
+            "--input",
+            INPUT_PATH,
+            "--output",
+            FEATURES_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -93,8 +99,10 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/application/batch_predict.py",
-            "--input", FEATURES_PATH,
-            "--output", PREDICTIONS_PATH,
+            "--input",
+            FEATURES_PATH,
+            "--output",
+            PREDICTIONS_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -110,7 +118,8 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/infrastructure/storage/save_predictions.py",
-            "--input", PREDICTIONS_PATH,
+            "--input",
+            PREDICTIONS_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -119,4 +128,7 @@ with DAG(
         get_logs=True,
     )
 
-    extract >> validate >> features >> predict >> save
+    extract.set_downstream(validate)
+    validate.set_downstream(features)
+    features.set_downstream(predict)
+    predict.set_downstream(save)

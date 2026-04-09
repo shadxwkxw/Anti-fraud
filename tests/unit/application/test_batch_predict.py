@@ -1,7 +1,12 @@
+from unittest.mock import patch
+
 import numpy as np
 import pandas as pd
 
 from src.antifraud.application.batch_predict import run_batch
+
+S3_UPLOAD = "src.antifraud.application.batch_predict.s3_upload"
+S3_DOWNLOAD = "src.antifraud.application.batch_predict.s3_download"
 
 
 def test_run_batch_execution(mocker, tmp_path):
@@ -36,7 +41,8 @@ def test_run_batch_execution(mocker, tmp_path):
 
     output_file = tmp_path / "results.csv"
 
-    run_batch("dummy_input.csv", str(output_file))
+    with patch(S3_UPLOAD):
+        run_batch("dummy_input.csv", str(output_file))
 
     # Check if output file was created
     assert output_file.exists()

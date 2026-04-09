@@ -2,8 +2,8 @@
 
 import os
 
-from src.antifraud.infrastructure.storage.s3 import get_s3_client
 from src.antifraud.config import config
+from src.antifraud.infrastructure.storage.s3 import get_s3_client
 
 BUCKET = config["s3"]["bucket"]
 

@@ -1,9 +1,12 @@
 import sys
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
 from src.antifraud.infrastructure.data_processing import validate
+
+S3_DOWNLOAD = "src.antifraud.infrastructure.data_processing.validate.s3_download"
 
 
 def _write_csv(tmp_path, df, name="d.csv"):
@@ -32,8 +35,9 @@ def test_validate_missing_col(tmp_path):
 
 
 def test_validate_missing_file():
-    with pytest.raises(FileNotFoundError):
-        validate.validate_data("/nonexistent/abc.csv")
+    with patch(S3_DOWNLOAD, side_effect=FileNotFoundError("not in S3")):
+        with pytest.raises(FileNotFoundError):
+            validate.validate_data("/tmp/nonexistent_test_abc.csv")
 
 
 def test_validate_main(tmp_path, monkeypatch):

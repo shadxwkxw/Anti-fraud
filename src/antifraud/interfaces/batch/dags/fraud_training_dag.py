@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 
+from kubernetes.client import models as k8s
+
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
-from kubernetes.client import models as k8s
 
 NAMESPACE = "antifraud-system"
 BATCH_IMAGE = "ghcr.io/shadxwkxw/antifraud-batch:latest"
@@ -41,7 +42,8 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/infrastructure/data_processing/make_splits.py",
-            "--output", TRAIN_DATA_PATH,
+            "--output",
+            TRAIN_DATA_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -57,8 +59,10 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/application/training/train_random_forest_model.py",
-            "--input", TRAIN_DATA_PATH,
-            "--output", MODEL_PATH,
+            "--input",
+            TRAIN_DATA_PATH,
+            "--output",
+            MODEL_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -74,7 +78,8 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/application/training/evaluate_model.py",
-            "--model", MODEL_PATH,
+            "--model",
+            MODEL_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -90,7 +95,8 @@ with DAG(
         cmds=["python"],
         arguments=[
             "src/antifraud/application/training/register_model.py",
-            "--model", MODEL_PATH,
+            "--model",
+            MODEL_PATH,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
@@ -99,4 +105,6 @@ with DAG(
         get_logs=True,
     )
 
-    prepare_data >> train >> evaluate >> register
+    prepare_data.set_downstream(train)
+    train.set_downstream(evaluate)
+    evaluate.set_downstream(register)
