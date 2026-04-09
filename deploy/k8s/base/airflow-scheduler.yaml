@@ -47,16 +47,17 @@ spec:
                 - bash
                 - -c
                 - airflow jobs check --job-type SchedulerJob --hostname $(hostname)
-            initialDelaySeconds: 30
-            periodSeconds: 60
-            timeoutSeconds: 10
+            initialDelaySeconds: 90
+            periodSeconds: 120
+            timeoutSeconds: 60
+            failureThreshold: 5
           resources:
             requests:
-              cpu: 100m
-              memory: 512Mi
+              cpu: 250m
+              memory: 768Mi
             limits:
-              cpu: 500m
-              memory: 1280Mi
+              cpu: 1500m
+              memory: 2Gi
       volumes:
         - name: dags
           configMap:
