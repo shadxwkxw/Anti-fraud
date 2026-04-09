@@ -22,6 +22,19 @@ def ensure_models():
             download_model(s3_key, local_path)
 
 
+def ensure_dataset(local_path: str) -> None:
+    """Загружает датасет из S3, если он отсутствует локально."""
+    if os.path.exists(local_path):
+        return
+
+    output_dir = os.path.dirname(local_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    print(f"Downloading dataset {local_path} from S3...")
+    download_model(local_path, local_path)
+
+
 def main():
     """CLI entrypoint for batch service."""
     parser = argparse.ArgumentParser()
@@ -34,6 +47,7 @@ def main():
         os.makedirs(output_dir, exist_ok=True)
 
     ensure_models()
+    ensure_dataset(args.input)
     run_batch(args.input, args.output)
     print("Batch inference finished via service entrypoint")
 
