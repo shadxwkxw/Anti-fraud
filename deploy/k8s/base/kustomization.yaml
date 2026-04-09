@@ -18,6 +18,7 @@ resources:
   - airflow-configmap.yaml
   - airflow-dags-configmap.yaml
   - airflow-db.yaml
+  - antifraud-db.yaml
   - airflow-logs-pvc.yaml
   - airflow-rbac.yaml
   - airflow-scheduler.yaml
