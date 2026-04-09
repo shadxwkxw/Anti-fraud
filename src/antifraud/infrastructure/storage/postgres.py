@@ -30,6 +30,7 @@ def init_db():
     cur.execute(f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             id SERIAL PRIMARY KEY,
+            execution_date DATE NOT NULL,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             data JSONB,
             probability FLOAT,
@@ -64,12 +65,23 @@ def save_prediction(prediction: StoredPrediction):
     conn.close()
 
 
-def save_batch_predictions(df, chunk_size=5000):
-    """Сохраняет пакет предсказаний в Postgres чанками."""
+def save_batch_predictions(df, execution_date, chunk_size=5000):
+    """Сохраняет пакет предсказаний в Postgres чанками (идемпотентно)."""
     conn = get_connection()
     cur = conn.cursor()
 
     table_name = config["postgres"]["table"]
+
+    # Идемпотентность: удаляем старые записи за эту дату перед вставкой
+    cur.execute(
+        f"DELETE FROM {table_name} WHERE execution_date = %s",
+        (execution_date,),
+    )
+    deleted = cur.rowcount
+    conn.commit()
+    if deleted:
+        print(f"Deleted {deleted} existing rows for {execution_date}")
+
     total = len(df)
     saved = 0
 
@@ -81,6 +93,7 @@ def save_batch_predictions(df, chunk_size=5000):
             row_data = row.drop(["fraud_probability", "is_fraud"]).to_dict()
             data_to_insert.append(
                 (
+                    execution_date,
                     json.dumps(row_data),
                     float(row["fraud_probability"]),
                     bool(row["is_fraud"]),
@@ -89,7 +102,7 @@ def save_batch_predictions(df, chunk_size=5000):
 
         execute_values(
             cur,
-            f"INSERT INTO {table_name} (data, probability, is_fraud) VALUES %s",
+            f"INSERT INTO {table_name} (execution_date, data, probability, is_fraud) VALUES %s",
             data_to_insert,
         )
         conn.commit()

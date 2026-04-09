@@ -120,6 +120,8 @@ with DAG(
             "src/antifraud/infrastructure/storage/save_predictions.py",
             "--input",
             PREDICTIONS_PATH,
+            "--date",
+            EXECUTION_DATE,
         ],
         env_from=ENV_FROM,
         image_pull_secrets=IMAGE_PULL_SECRETS,
