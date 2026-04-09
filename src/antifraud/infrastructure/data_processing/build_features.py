@@ -2,26 +2,29 @@ import argparse
 import os
 
 from src.antifraud.application.training.utils import load_and_preprocess_data
+from src.antifraud.infrastructure.storage.s3_io import s3_download, s3_upload
 
 
 def build_features(input_path, output_path):
     """
     Выполняет инженерию признаков.
     """
+    # Скачиваем из S3, если нет локально
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file {input_path} not found")
+        s3_download(input_path, input_path)
 
     print(f"Building features from {input_path}...")
 
-    # Используем общую логику предобработки из utils.py
     df = load_and_preprocess_data(input_path)
 
     output_dir = os.path.dirname(output_path)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
 
-    # Сохраняем в parquet (требует pyarrow)
     df.to_parquet(output_path, index=False)
+
+    # Загружаем результат в S3 для следующего шага
+    s3_upload(output_path, output_path)
     print(f"Features saved to {output_path}")
 
 

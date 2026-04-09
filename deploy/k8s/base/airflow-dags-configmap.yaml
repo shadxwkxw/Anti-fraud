@@ -15,16 +15,9 @@ data:
     BATCH_IMAGE = "ghcr.io/shadxwkxw/antifraud-batch:latest"
     IMAGE_PULL_SECRETS = [k8s.V1LocalObjectReference("ghcr-pull-secret")]
 
-    VOLUMES = [
-        k8s.V1Volume(
-            name="antifraud-data",
-            persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
-                claim_name="antifraud-data-pvc"
-            ),
-        )
-    ]
-    VOLUME_MOUNTS = [
-        k8s.V1VolumeMount(name="antifraud-data", mount_path="/app/data")
+    ENV_FROM = [
+        {"configMapRef": {"name": "antifraud-config"}},
+        {"secretRef": {"name": "antifraud-secrets"}},
     ]
 
     DEFAULT_ARGS = {
@@ -33,11 +26,6 @@ data:
         "retries": 1,
         "retry_delay": timedelta(minutes=10),
     }
-
-    ENV_FROM = [
-        {"configMapRef": {"name": "antifraud-config"}},
-        {"secretRef": {"name": "antifraud-secrets"}},
-    ]
 
     with DAG(
         dag_id="fraud_training_pipeline",
@@ -64,8 +52,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -83,8 +69,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -101,8 +85,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -119,8 +101,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -139,16 +119,9 @@ data:
     BATCH_IMAGE = "ghcr.io/shadxwkxw/antifraud-batch:latest"
     IMAGE_PULL_SECRETS = [k8s.V1LocalObjectReference("ghcr-pull-secret")]
 
-    VOLUMES = [
-        k8s.V1Volume(
-            name="antifraud-data",
-            persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
-                claim_name="antifraud-data-pvc"
-            ),
-        )
-    ]
-    VOLUME_MOUNTS = [
-        k8s.V1VolumeMount(name="antifraud-data", mount_path="/app/data")
+    ENV_FROM = [
+        {"configMapRef": {"name": "antifraud-config"}},
+        {"secretRef": {"name": "antifraud-secrets"}},
     ]
 
     DEFAULT_ARGS = {
@@ -158,11 +131,6 @@ data:
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     }
-
-    ENV_FROM = [
-        {"configMapRef": {"name": "antifraud-config"}},
-        {"secretRef": {"name": "antifraud-secrets"}},
-    ]
 
     with DAG(
         dag_id="fraud_batch_pipeline",
@@ -191,8 +159,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -209,8 +175,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -228,8 +192,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -247,8 +209,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,
@@ -265,8 +225,6 @@ data:
             ],
             env_from=ENV_FROM,
             image_pull_secrets=IMAGE_PULL_SECRETS,
-            volumes=VOLUMES,
-            volume_mounts=VOLUME_MOUNTS,
             service_account_name="airflow",
             is_delete_operator_pod=True,
             get_logs=True,

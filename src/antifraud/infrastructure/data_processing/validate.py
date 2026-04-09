@@ -3,13 +3,16 @@ import os
 
 import pandas as pd
 
+from src.antifraud.infrastructure.storage.s3_io import s3_download
+
 
 def validate_data(input_path):
     """
     Базовая проверка качества данных.
     """
+    # Скачиваем из S3, если нет локально
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"File {input_path} not found for validation")
+        s3_download(input_path, input_path)
 
     df = pd.read_csv(input_path)
 

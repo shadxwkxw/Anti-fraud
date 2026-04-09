@@ -4,14 +4,16 @@ import os
 import pandas as pd
 
 from src.antifraud.infrastructure.storage.postgres import init_db, save_batch_predictions
+from src.antifraud.infrastructure.storage.s3_io import s3_download
 
 
 def publish_results(input_path):
     """
     Сохраняет результаты инференса в PostgreSQL.
     """
+    # Скачиваем из S3, если нет локально
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"File {input_path} not found")
+        s3_download(input_path, input_path)
 
     init_db()
 

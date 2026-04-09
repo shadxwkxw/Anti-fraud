@@ -1,12 +1,17 @@
 from datetime import datetime, timedelta
 
-from docker.types import Mount
-
 from airflow import DAG
-from airflow.providers.docker.operators.docker import DockerOperator
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from kubernetes.client import models as k8s
 
-# Absolute path to project root on the host machine
-PROJECT_ROOT = "/Users/maksim/Anti-fraud"
+NAMESPACE = "antifraud-system"
+BATCH_IMAGE = "ghcr.io/shadxwkxw/antifraud-batch:latest"
+IMAGE_PULL_SECRETS = [k8s.V1LocalObjectReference("ghcr-pull-secret")]
+
+ENV_FROM = [
+    {"configMapRef": {"name": "antifraud-config"}},
+    {"secretRef": {"name": "antifraud-secrets"}},
+]
 
 DEFAULT_ARGS = {
     "owner": "airflow",
@@ -26,88 +31,92 @@ with DAG(
     tags=["fraud", "batch", "ml"],
 ) as dag:
 
-    # Параметры (динамические)
     EXECUTION_DATE = "{{ ds }}"
     INPUT_PATH = f"data/raw/transactions_{EXECUTION_DATE}.csv"
     FEATURES_PATH = f"data/processed/features_{EXECUTION_DATE}.parquet"
     PREDICTIONS_PATH = f"data/output/predictions_{EXECUTION_DATE}.csv"
 
-    # Shared mounts for all tasks
-    shared_mounts = [
-        Mount(source=f"{PROJECT_ROOT}/data", target="/app/data", type="bind"),
-        Mount(source=f"{PROJECT_ROOT}/models", target="/app/models", type="bind"),
-        Mount(source=f"{PROJECT_ROOT}/configs", target="/app/configs", type="bind"),
-        Mount(source=f"{PROJECT_ROOT}/src", target="/app/src", type="bind"),
-        Mount(source=f"{PROJECT_ROOT}/.env", target="/app/.env", type="bind", read_only=True),
-    ]
-
-    # 1. Extract / Prepare data
-    extract = DockerOperator(
+    extract = KubernetesPodOperator(
         task_id="extract_data",
-        image="antifraud-batch:latest",
-        command=f"python src/antifraud/infrastructure/data_processing/extract.py \
-            --date {EXECUTION_DATE} --output {INPUT_PATH}",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="antifraud-network",
-        auto_remove="success",
-        mount_tmp_dir=False,
-        mounts=shared_mounts,
+        namespace=NAMESPACE,
+        image=BATCH_IMAGE,
+        cmds=["python"],
+        arguments=[
+            "src/antifraud/infrastructure/data_processing/extract.py",
+            "--date", EXECUTION_DATE,
+            "--output", INPUT_PATH,
+        ],
+        env_from=ENV_FROM,
+        image_pull_secrets=IMAGE_PULL_SECRETS,
+        service_account_name="airflow",
+        is_delete_operator_pod=True,
+        get_logs=True,
     )
 
-    # 2. Validate data
-    validate = DockerOperator(
+    validate = KubernetesPodOperator(
         task_id="validate_data",
-        image="antifraud-batch:latest",
-        command=f"python src/antifraud/infrastructure/data_processing/validate.py \
-            --input {INPUT_PATH}",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="antifraud-network",
-        auto_remove="success",
-        mount_tmp_dir=False,
-        mounts=shared_mounts,
+        namespace=NAMESPACE,
+        image=BATCH_IMAGE,
+        cmds=["python"],
+        arguments=[
+            "src/antifraud/infrastructure/data_processing/validate.py",
+            "--input", INPUT_PATH,
+        ],
+        env_from=ENV_FROM,
+        image_pull_secrets=IMAGE_PULL_SECRETS,
+        service_account_name="airflow",
+        is_delete_operator_pod=True,
+        get_logs=True,
     )
 
-    # 3. Feature engineering
-    features = DockerOperator(
+    features = KubernetesPodOperator(
         task_id="build_features",
-        image="antifraud-batch:latest",
-        command=f"python src/antifraud/infrastructure/data_processing/build_features.py \
-            --input {INPUT_PATH} --output {FEATURES_PATH}",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="antifraud-network",
-        auto_remove="success",
-        mount_tmp_dir=False,
-        mounts=shared_mounts,
+        namespace=NAMESPACE,
+        image=BATCH_IMAGE,
+        cmds=["python"],
+        arguments=[
+            "src/antifraud/infrastructure/data_processing/build_features.py",
+            "--input", INPUT_PATH,
+            "--output", FEATURES_PATH,
+        ],
+        env_from=ENV_FROM,
+        image_pull_secrets=IMAGE_PULL_SECRETS,
+        service_account_name="airflow",
+        is_delete_operator_pod=True,
+        get_logs=True,
     )
 
-    # 4. Run batch inference
-    predict = DockerOperator(
+    predict = KubernetesPodOperator(
         task_id="predict",
-        image="antifraud-batch:latest",
-        command=f"python src/antifraud/application/batch_predict.py \
-            --input {FEATURES_PATH} --output {PREDICTIONS_PATH}",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="antifraud-network",
-        auto_remove="success",
-        mount_tmp_dir=False,
-        mounts=shared_mounts,
+        namespace=NAMESPACE,
+        image=BATCH_IMAGE,
+        cmds=["python"],
+        arguments=[
+            "src/antifraud/application/batch_predict.py",
+            "--input", FEATURES_PATH,
+            "--output", PREDICTIONS_PATH,
+        ],
+        env_from=ENV_FROM,
+        image_pull_secrets=IMAGE_PULL_SECRETS,
+        service_account_name="airflow",
+        is_delete_operator_pod=True,
+        get_logs=True,
     )
 
-    # 5. Save / publish results
-    save = DockerOperator(
+    save = KubernetesPodOperator(
         task_id="save_results",
-        image="antifraud-batch:latest",
-        command=f"python src/antifraud/infrastructure/storage/save_predictions.py \
-            --input {PREDICTIONS_PATH}",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="antifraud-network",
-        auto_remove="success",
-        mount_tmp_dir=False,
-        mounts=shared_mounts,
+        namespace=NAMESPACE,
+        image=BATCH_IMAGE,
+        cmds=["python"],
+        arguments=[
+            "src/antifraud/infrastructure/storage/save_predictions.py",
+            "--input", PREDICTIONS_PATH,
+        ],
+        env_from=ENV_FROM,
+        image_pull_secrets=IMAGE_PULL_SECRETS,
+        service_account_name="airflow",
+        is_delete_operator_pod=True,
+        get_logs=True,
     )
 
-    # Dependencies
-    extract.set_downstream(validate)
-    validate.set_downstream(features)
-    features.set_downstream(predict)
-    predict.set_downstream(save)
+    extract >> validate >> features >> predict >> save
