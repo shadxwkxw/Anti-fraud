@@ -7,7 +7,48 @@ on:
   workflow_dispatch:
 
 jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install dependencies
+        run: uv sync --frozen --dev
+
+      - name: Run flake8
+        run: uv run flake8 src tests services
+
+      - name: Run isort
+        run: uv run isort --check-only src tests services
+
+      - name: Run black
+        run: uv run black --check src tests services
+
+      - name: Run pylint
+        run: uv run pylint src tests services
+
+      - name: Run mypy
+        run: uv run mypy src
+
+      - name: Run unit tests with coverage
+        run: >
+          uv run pytest -q
+          --cov=src/antifraud
+          --cov-report=term-missing
+          --cov-fail-under=80
+
   build-online:
+    needs: quality-gate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -47,6 +88,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   build-batch:
+    needs: quality-gate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -86,6 +128,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   build-airflow:
+    needs: quality-gate
     runs-on: ubuntu-latest
     permissions:
       contents: read
