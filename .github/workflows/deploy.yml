@@ -89,6 +89,7 @@ jobs:
           command_timeout: 5m
           script: |
             set -eu
+            export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
             echo "=== Pod status ==="
             kubectl -n antifraud-system get pods
 
