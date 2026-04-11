@@ -1,5 +1,10 @@
 from src.antifraud.domain.models import Prediction, Transaction
 from src.antifraud.interfaces.online.schemas import (
+    BatchPredictionRequest,
+    BatchPredictionResponse,
+    HealthResponse,
+    HistoryRecord,
+    HistoryResponse,
     ModelInfoResponse,
     PredictionResponse,
     TransactionRequest,
@@ -35,6 +40,38 @@ def test_prediction_response_not_fraud():
 
 
 def test_model_info_response():
-    r = ModelInfoResponse(model_type="rf", threshold=0.5, model_path="/tmp/m")
+    r = ModelInfoResponse(model_type="rf", threshold=0.5, model_path="/tmp/m", features_count=30)
     assert r.model_type == "rf"
     assert r.threshold == 0.5
+    assert r.features_count == 30
+
+
+def test_batch_prediction_request():
+    req = BatchPredictionRequest(transactions=[TransactionRequest(**_tx_payload())])
+    assert len(req.transactions) == 1
+
+
+def test_batch_prediction_response():
+    resp = BatchPredictionResponse(
+        predictions=[PredictionResponse(fraud_probability=0.9, is_fraud=True)],
+        total=1,
+        fraud_count=1,
+    )
+    assert resp.total == 1
+    assert resp.fraud_count == 1
+
+
+def test_health_response():
+    h = HealthResponse(status="ok", model_loaded=True, database="ok")
+    assert h.status == "ok"
+
+
+def test_history_record():
+    rec = HistoryRecord(id=1, timestamp="2024-01-01", probability=0.5, is_fraud=False)
+    assert rec.probability == 0.5
+
+
+def test_history_response():
+    rec = HistoryRecord(id=1, probability=0.5, is_fraud=False)
+    resp = HistoryResponse(records=[rec], total=1)
+    assert resp.total == 1

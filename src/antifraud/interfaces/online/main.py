@@ -4,7 +4,31 @@ from src.antifraud.interfaces.online.routes import router
 
 app = FastAPI(
     title="Fraud Detection API",
-    version="1.0",
+    description=(
+        "REST-сервис для обнаружения мошеннических транзакций по кредитным картам.\n\n"
+        "**Основные возможности:**\n"
+        "- Скоринг одиночных и батчевых транзакций в реальном времени\n"
+        "- Просмотр истории предсказаний из PostgreSQL\n"
+        "- Мониторинг состояния модели и базы данных\n\n"
+        "Модель: Random Forest, обученная на Credit Card Fraud Detection dataset."
+    ),
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_tags=[
+        {
+            "name": "predictions",
+            "description": "Скоринг транзакций и история предсказаний",
+        },
+        {
+            "name": "model",
+            "description": "Информация о загруженной ML-модели",
+        },
+        {
+            "name": "system",
+            "description": "Мониторинг и healthcheck",
+        },
+    ],
 )
 
 app.include_router(router)
