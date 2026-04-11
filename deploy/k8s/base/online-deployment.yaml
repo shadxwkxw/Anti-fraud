@@ -31,8 +31,8 @@ spec:
             - -c
             - |
               from src.antifraud.infrastructure.storage.s3 import download_model
-              download_model("random_forest/model.joblib", "/app/models/random_forest/model.joblib")
-              download_model("random_forest/scaler.joblib", "/app/models/random_forest/scaler.joblib")
+              download_model("random_forest/model.joblib", "/app/data/models/random_forest/model.joblib")
+              download_model("random_forest/scaler.joblib", "/app/data/models/random_forest/scaler.joblib")
               print("Models downloaded successfully")
           envFrom:
             - configMapRef:
@@ -41,7 +41,7 @@ spec:
                 name: antifraud-secrets
           volumeMounts:
             - name: models
-              mountPath: /app/models
+              mountPath: /app/data/models
       containers:
         - name: online
           image: antifraud-online:placeholder
@@ -55,7 +55,7 @@ spec:
                 name: antifraud-secrets
           volumeMounts:
             - name: models
-              mountPath: /app/models
+              mountPath: /app/data/models
           readinessProbe:
             httpGet:
               path: /health
