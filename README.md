@@ -196,12 +196,48 @@ Anti-fraud/
 
 ## Online API
 
-| Эндпоинт | Метод | Описание |
-|----------|-------|----------|
-| `/` | GET | Информация о сервисе |
-| `/health` | GET | Healthcheck |
-| `/predict` | POST | Скоринг транзакции (вероятность фрода + `is_fraud`) |
-| `/model/info` | GET | Метаинформация о модели: тип, порог, путь |
+| Эндпоинт               | Метод | Описание                                                  | Пример                             |
+| ---------------------- | ----- | --------------------------------------------------------- | ---------------------------------- |
+| `/`                    | GET   | Информация о сервисе                                      | `GET /`                            |
+| `/health`              | GET   | Проверка состояния сервиса (healthcheck)                  | `GET /health`                      |
+| `/predict`             | POST  | Скоринг одной транзакции (вероятность фрода + `is_fraud`) | `POST /predict`                    |
+| `/predict/batch`       | POST  | Батчевый скоринг нескольких транзакций                    | `POST /predict/batch`              |
+| `/predictions/history` | GET   | Получение истории предсказаний (с лимитом)                | `GET /predictions/history?limit=5` |
+| `/model/info`          | GET   | Метаданные модели (тип, порог, путь)                      | `GET /model/info`                  |
+
+## Проверка API
+
+Healthcheck
+```bash
+curl http://<IP>:<PORT>/health
+```
+
+Скоринг одной транзакции
+```bash
+curl -X POST http://<IP>:<PORT>/predict \
+  -H "Content-Type: application/json" \
+  -d '{"Time": 406, "Amount": 125.0}'
+```
+
+Батчевый скоринг
+```bash
+curl -X POST http://<IP>:<PORT>/predict/batch \
+  -H "Content-Type: application/json" \
+  -d '{"transactions": [
+    {"Time": 406, "Amount": 125.0},
+    {"Time": 500, "Amount": 9999.0}
+  ]}'
+```
+
+История предсказаний
+```bash
+curl http://<IP>:<PORT>/predictions/history?limit=5
+```
+
+Информация о модели
+```bash
+curl http://<IP>:<PORT>/model/info
+```
 
 ## Локальный запуск
 
@@ -256,40 +292,6 @@ make clean     # Полная очистка (volumes, cache)
 | `pylint` | Статический анализ качества |
 | `mypy` | Проверка аннотаций типов (Python 3.11) |
 | `pytest-cov` | Покрытие тестами (порог 80%, текущее ~93%) |
-
-## Проверка API
-
-Healthcheck
-```bash
-curl http://<IP>:<PORT>/health
-```
-
-Скоринг одной транзакции
-```bash
-curl -X POST http://<IP>:<PORT>/predict \
-  -H "Content-Type: application/json" \
-  -d '{"Time": 406, "Amount": 125.0}'
-```
-
-Батчевый скоринг
-```bash
-curl -X POST http://<IP>:<PORT>/predict/batch \
-  -H "Content-Type: application/json" \
-  -d '{"transactions": [
-    {"Time": 406, "Amount": 125.0},
-    {"Time": 500, "Amount": 9999.0}
-  ]}'
-```
-
-История предсказаний
-```bash
-curl http://<IP>:<PORT>/predictions/history?limit=5
-```
-
-Информация о модели
-```bash
-curl http://<IP>:<PORT>/model/info
-```
 
 ## Конфигурация
 
