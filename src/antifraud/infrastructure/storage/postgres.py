@@ -8,7 +8,7 @@ from src.antifraud.config import config
 from src.antifraud.domain.models import StoredPrediction
 
 
-def get_connection():
+def get_connection(connect_timeout: int = 5):
     """Создает соединение с Postgres, используя параметры из конфига."""
     return psycopg2.connect(
         host=config["postgres"]["host"],
@@ -17,6 +17,7 @@ def get_connection():
         user=config["postgres"]["user"],
         password=config["postgres"]["password"],
         sslmode=config["postgres"].get("sslmode", "require"),
+        connect_timeout=connect_timeout,
     )
 
 
