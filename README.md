@@ -188,7 +188,6 @@ Anti-fraud/
 │
 ├── .env.example                          # Шаблон переменных окружения
 ├── docker-compose.yml                    # Dev-окружение
-├── docker-compose.prod.yml               # Prod-окружение (GHCR-образы)
 ├── Makefile                              # build, lint, test, check, up, down, clean
 ├── pyproject.toml                        # Зависимости + настройки линтеров
 ├── uv.lock                               # Lockfile зависимостей
