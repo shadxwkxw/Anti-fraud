@@ -258,6 +258,40 @@ make clean     # Полная очистка (volumes, cache)
 | `mypy` | Проверка аннотаций типов (Python 3.11) |
 | `pytest-cov` | Покрытие тестами (порог 80%, текущее ~93%) |
 
+## Проверка API
+
+Healthcheck
+```bash
+curl http://<IP>:<PORT>/health
+```
+
+Скоринг одной транзакции
+```bash
+curl -X POST http://<IP>:<PORT>/predict \
+  -H "Content-Type: application/json" \
+  -d '{"Time": 406, "Amount": 125.0}'
+```
+
+Батчевый скоринг
+```bash
+curl -X POST http://<IP>:<PORT>/predict/batch \
+  -H "Content-Type: application/json" \
+  -d '{"transactions": [
+    {"Time": 406, "Amount": 125.0},
+    {"Time": 500, "Amount": 9999.0}
+  ]}'
+```
+
+История предсказаний
+```bash
+curl http://<IP>:<PORT>/predictions/history?limit=5
+```
+
+Информация о модели
+```bash
+curl http://<IP>:<PORT>/model/info
+```
+
 ## Конфигурация
 
 Централизована в `configs/config.yaml` с подстановкой переменных окружения:
