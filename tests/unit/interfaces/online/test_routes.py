@@ -90,26 +90,3 @@ def test_predict_batch():
 def test_predict_batch_empty():
     r = client.post("/predict/batch", json={"transactions": []})
     assert r.status_code == 422
-
-
-def test_predictions_history():
-    mock_conn = MagicMock()
-    mock_cur = MagicMock()
-    mock_conn.cursor.return_value = mock_cur
-    mock_cur.fetchall.return_value = [
-        (1, "2024-01-01 12:00:00", 0.95, True),
-        (2, "2024-01-01 12:01:00", 0.10, False),
-    ]
-    with patch(PG_CONN, return_value=mock_conn):
-        r = client.get("/predictions/history?limit=10")
-    assert r.status_code == 200
-    body = r.json()
-    assert body["total"] == 2
-    assert body["records"][0]["probability"] == 0.95
-    assert body["records"][0]["is_fraud"] is True
-
-
-def test_predictions_history_db_unavailable():
-    with patch(PG_CONN, side_effect=ConnectionError("no db")):
-        r = client.get("/predictions/history")
-    assert r.status_code == 503

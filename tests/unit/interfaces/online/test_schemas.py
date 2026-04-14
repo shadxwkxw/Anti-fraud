@@ -3,8 +3,6 @@ from src.antifraud.interfaces.online.schemas import (
     BatchPredictionRequest,
     BatchPredictionResponse,
     HealthResponse,
-    HistoryRecord,
-    HistoryResponse,
     ModelInfoResponse,
     PredictionResponse,
     TransactionRequest,
@@ -64,14 +62,3 @@ def test_batch_prediction_response():
 def test_health_response():
     h = HealthResponse(status="ok", model_loaded=True, database="ok")
     assert h.status == "ok"
-
-
-def test_history_record():
-    rec = HistoryRecord(id=1, timestamp="2024-01-01", probability=0.5, is_fraud=False)
-    assert rec.probability == 0.5
-
-
-def test_history_response():
-    rec = HistoryRecord(id=1, probability=0.5, is_fraud=False)
-    resp = HistoryResponse(records=[rec], total=1)
-    assert resp.total == 1

@@ -92,19 +92,3 @@ class HealthResponse(BaseModel):
     status: str = Field(..., description="Общий статус (ok / degraded)")
     model_loaded: bool = Field(..., description="Модель загружена в память")
     database: str = Field(..., description="Статус подключения к БД (ok / unavailable)")
-
-
-class HistoryRecord(BaseModel):
-    """Одна запись из истории предсказаний."""
-
-    id: int
-    timestamp: str | None = None
-    probability: float
-    is_fraud: bool
-
-
-class HistoryResponse(BaseModel):
-    """Список последних предсказаний из БД."""
-
-    records: list[HistoryRecord]
-    total: int = Field(..., description="Всего записей, возвращённых запросом")

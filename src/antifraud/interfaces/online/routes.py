@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter
 
 from src.antifraud.config import config
 from src.antifraud.domain.predictor import MODEL_PATH, get_artifacts, predict
@@ -9,8 +9,6 @@ from src.antifraud.interfaces.online.schemas import (
     BatchPredictionRequest,
     BatchPredictionResponse,
     HealthResponse,
-    HistoryRecord,
-    HistoryResponse,
     ModelInfoResponse,
     PredictionResponse,
     TransactionRequest,
@@ -103,41 +101,3 @@ def model_info():
         model_path=MODEL_PATH,
         features_count=features_count,
     )
-
-
-@router.get(
-    "/predictions/history",
-    response_model=HistoryResponse,
-    tags=["predictions"],
-    summary="История предсказаний из БД",
-)
-def predictions_history(
-    limit: int = Query(default=20, ge=1, le=200, description="Макс. кол-во записей"),
-):
-    """Возвращает последние предсказания, сохранённые в Postgres."""
-    try:
-        table = config["postgres"]["table"]
-        conn = get_connection(connect_timeout=3)
-        cur = conn.cursor()
-        cur.execute(
-            f"SELECT id, timestamp, probability, is_fraud "
-            f"FROM {table} ORDER BY id DESC LIMIT %s",
-            (limit,),
-        )
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
-
-        records = [
-            HistoryRecord(
-                id=r[0],
-                timestamp=str(r[1]) if r[1] else None,
-                probability=float(r[2]),
-                is_fraud=bool(r[3]),
-            )
-            for r in rows
-        ]
-        return HistoryResponse(records=records, total=len(records))
-    except Exception as exc:
-        logger.exception("Failed to fetch prediction history")
-        raise HTTPException(status_code=503, detail=f"Database unavailable: {exc}") from exc
