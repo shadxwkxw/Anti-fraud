@@ -13,8 +13,7 @@ def make_splits(input_path, train_output, test_output):
     Загружает данные, применяет предобработку и делит их на обучающую и тестовую выборки.
     """
     if not os.path.exists(input_path):
-        s3_key = os.path.basename(input_path)
-        s3_download(s3_key, input_path)
+        s3_download(input_path, input_path)
 
     print(f"Loading and preprocessing data from {input_path}...")
     df = load_and_preprocess_data(input_path)
