@@ -198,11 +198,9 @@ Anti-fraud/
 
 | Эндпоинт               | Метод | Описание                                                  | Пример                             |
 | ---------------------- | ----- | --------------------------------------------------------- | ---------------------------------- |
-| `/`                    | GET   | Информация о сервисе                                      | `GET /`                            |
 | `/health`              | GET   | Проверка состояния сервиса (healthcheck)                  | `GET /health`                      |
 | `/predict`             | POST  | Скоринг одной транзакции (вероятность фрода + `is_fraud`) | `POST /predict`                    |
 | `/predict/batch`       | POST  | Батчевый скоринг нескольких транзакций                    | `POST /predict/batch`              |
-| `/predictions/history` | GET   | Получение истории предсказаний (с лимитом)                | `GET /predictions/history?limit=5` |
 | `/model/info`          | GET   | Метаданные модели (тип, порог, путь)                      | `GET /model/info`                  |
 
 ## Проверка API
@@ -227,11 +225,6 @@ curl -X POST http://<IP>:<PORT>/predict/batch \
     {"Time": 406, "Amount": 125.0},
     {"Time": 500, "Amount": 9999.0}
   ]}'
-```
-
-История предсказаний
-```bash
-curl http://<IP>:<PORT>/predictions/history?limit=5
 ```
 
 Информация о модели
