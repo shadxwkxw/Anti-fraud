@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 
 from src.antifraud.application.training.utils import load_and_preprocess_data
 from src.antifraud.config import config
+from src.antifraud.infrastructure.storage.s3_io import s3_download, s3_upload
 
 
 def make_splits(input_path, train_output, test_output):
@@ -12,7 +13,8 @@ def make_splits(input_path, train_output, test_output):
     Загружает данные, применяет предобработку и делит их на обучающую и тестовую выборки.
     """
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file {input_path} not found")
+        s3_key = os.path.basename(input_path)
+        s3_download(s3_key, input_path)
 
     print(f"Loading and preprocessing data from {input_path}...")
     df = load_and_preprocess_data(input_path)
@@ -32,6 +34,10 @@ def make_splits(input_path, train_output, test_output):
 
     print(f"Train shape: {train_df.shape} saved to {train_output}")
     print(f"Test shape: {test_df.shape} saved to {test_output}")
+
+    # Upload splits to S3
+    s3_upload(train_output, os.path.basename(train_output))
+    s3_upload(test_output, os.path.basename(test_output))
 
 
 def main():

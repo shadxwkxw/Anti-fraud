@@ -12,19 +12,26 @@ from src.antifraud.application.training.utils import (
 )
 from src.antifraud.config import config
 from src.antifraud.infrastructure.storage.s3 import upload_model
+from src.antifraud.infrastructure.storage.s3_io import s3_download
 
 
 def train_model(input_path, output_path):
     """
-    Обучает модель Random Forest на данных из input_path.
+    Обучает модел�� Random Forest на данных из input_path.
     """
     # =========================
     # DATA PREPARATION
     # =========================
+    if not os.path.exists(input_path):
+        s3_download(os.path.basename(input_path), input_path)
+
     print(f"Loading data from {input_path}...")
     train_df = load_and_preprocess_data(input_path)
 
     test_path = "data/splits/test.parquet"
+    if not os.path.exists(test_path):
+        s3_download("test.parquet", test_path)
+
     print(f"Loading test data from {test_path}...")
     test_df = load_and_preprocess_data(test_path)
 

@@ -1,20 +1,28 @@
 import argparse
 import os
-import shutil
+
+from src.antifraud.infrastructure.storage.s3 import upload_model
+from src.antifraud.infrastructure.storage.s3_io import s3_download
 
 
 def register_model(model_path):
     """
     Регистрация модели как основной (PROD).
-    В MVP просто копирует файл в папку models/random_forest/.
+    Скачивает модель из S3 (если нет локально) и загружает как production-артефакт.
     """
-    prod_dir = "models/random_forest"
-    os.makedirs(prod_dir, exist_ok=True)
+    if not os.path.exists(model_path):
+        s3_download("random_forest/model.joblib", model_path)
 
-    prod_path = os.path.join(prod_dir, "model.joblib")
+    # Загружаем scaler рядом с моделью
+    model_dir = os.path.dirname(model_path)
+    scaler_path = os.path.join(model_dir, "scaler.joblib")
+    if not os.path.exists(scaler_path):
+        s3_download("random_forest/scaler.joblib", scaler_path)
 
-    shutil.copy(model_path, prod_path)
-    print(f"Model {model_path} registered as production model at {prod_path}")
+    # Регистрируем как production в S3
+    upload_model(model_path, s3_key="random_forest/model.joblib")
+    upload_model(scaler_path, s3_key="random_forest/scaler.joblib")
+    print(f"Model {model_path} registered as production model in S3")
 
 
 def main():
